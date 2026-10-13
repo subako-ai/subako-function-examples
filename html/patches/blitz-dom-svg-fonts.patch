@@ -1,0 +1,33 @@
+--- a/src/util.rs
++++ b/src/util.rs
+@@ -40,16 +40,29 @@
+ }
+ 
+ #[cfg(feature = "svg")]
+-use std::sync::{Arc, LazyLock};
++use std::sync::{Arc, LazyLock, OnceLock};
+ #[cfg(feature = "svg")]
+ use usvg::fontdb;
+ #[cfg(feature = "svg")]
++static SVG_FONT_DB: OnceLock<Arc<fontdb::Database>> = OnceLock::new();
++#[cfg(feature = "svg")]
+ pub(crate) static FONT_DB: LazyLock<Arc<fontdb::Database>> = LazyLock::new(|| {
++    if let Some(db) = SVG_FONT_DB.get() {
++        return Arc::clone(db);
++    }
+     let mut db = fontdb::Database::new();
+     db.load_system_fonts();
+     Arc::new(db)
+ });
+ 
++/// Sets the fonts that text in SVG images and inline `<svg>` uses, in place
++/// of the system fonts, for platforms that have none. Takes effect only
++/// before the first SVG is parsed; returns whether it did.
++#[cfg(feature = "svg")]
++pub fn set_svg_font_db(db: Arc<fontdb::Database>) -> bool {
++    SVG_FONT_DB.set(db).is_ok() && Arc::ptr_eq(&FONT_DB, SVG_FONT_DB.get().unwrap())
++}
++
+ /// Which kind of CSS image layer list (`background-image` or `mask-image`) to
+ /// flush from style to dedicated storage on the node.
+ #[derive(Clone, Copy, Debug)]

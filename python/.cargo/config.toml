@@ -1,0 +1,5 @@
+# `cargo test --target wasm32-wasip1` runs the tests in wasmtime, with the
+# standard library where Subako mounts the package's assets, a stub for the
+# worker's HTTP import, and target/ standing in for the Volume's /tmp.
+[target.wasm32-wasip1]
+runner = "wasmtime run --preload subako_http=tests/subako_http_stub.wat --dir assets::/package --dir tests::/tests --dir target::/tmp"

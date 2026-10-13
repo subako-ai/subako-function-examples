@@ -1,0 +1,4 @@
+# `cargo test --target wasm32-wasip1` runs the tests in wasmtime too, with a
+# stub for the worker's HTTP import and target/ as the guest's temp directory.
+[target.wasm32-wasip1]
+runner = "wasmtime run --preload subako_http=tests/subako_http_stub.wat --dir target::/tmp"

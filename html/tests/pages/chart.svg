@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 200">
+  <style>.label { font-family: Arial, sans-serif; font-size: 16px; fill: #102943 }</style>
+  <polyline points="20,170 100,120 180,140 260,60 380,30" fill="none" stroke="#008b85" stroke-width="3"/>
+  <text class="label" x="20" y="24">売上 Revenue</text>
+  <text class="label" x="330" y="190">Q4</text>
+</svg>
