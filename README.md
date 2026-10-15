@@ -32,7 +32,7 @@ A module is an MCP server over stdio, as [subako-function-sdk](https://crates.io
 
 ## Go
 
-Written with [subako-function-sdk-go](https://github.com/subako-ai/subako-function-sdk-go) and the [official MCP Go SDK](https://github.com/modelcontextprotocol/go-sdk), each one a module of its own.
+Written with [subako-function-sdk-go](https://github.com/subako-ai/subako-function-sdk-go) and the [official MCP Go SDK](https://github.com/modelcontextprotocol/go-sdk), each module starting from [subako-function-template-go](https://github.com/subako-ai/subako-function-template-go).
 
 | Example | What it does |
 | --- | --- |
