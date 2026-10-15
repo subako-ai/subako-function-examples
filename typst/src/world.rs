@@ -1,5 +1,5 @@
 //! What the Typst compiler sees: the real filesystem as the project, so
-//! `/tmp/...` and `/data/...` mean the Volume, plus a few files held in
+//! `/volume/tmp/...` and `/volume/data/...` mean the Volume, plus a few files held in
 //! memory (the generated main file, and Markdown passed as text).
 
 use std::collections::HashMap;

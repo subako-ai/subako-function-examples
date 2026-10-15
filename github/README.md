@@ -29,7 +29,7 @@ returns
 }
 ```
 
-A list longer than a page also has `next_page`, the path of the next page, to pass back as `path`. Bodies over 100 KB are saved under `/tmp/github/` and `saved_to` names the file. Ask for fewer results, or read the file with another tool.
+A list longer than a page also has `next_page`, the path of the next page, to pass back as `path`. Bodies over 100 KB are saved under `/volume/tmp/github/` and `saved_to` names the file. Ask for fewer results, or read the file with another tool.
 
 ### `read_file`
 
@@ -47,7 +47,7 @@ A file comes back as `{"type": "file", "text": ..., "lines": 120, "first_line": 
 
 ### `download_repo`
 
-Downloads a repository's files at a branch, tag or commit to the Volume: `/tmp/github/OWNER/REPO` by default, or `dest`. The files are there for questions that need the whole tree, such as grep in [bashkit](../bashkit/) or a script in [python](../python/). It returns the commit, the number of files and bytes, and the top directory's entries. It doesn't fetch git history; `github_api` covers commits.
+Downloads a repository's files at a branch, tag or commit to the Volume: `/volume/tmp/github/OWNER/REPO` by default, or `dest`. The files are there for questions that need the whole tree, such as grep in [bashkit](../bashkit/) or a script in [python](../python/). It returns the commit, the number of files and bytes, and the top directory's entries. It doesn't fetch git history; `github_api` covers commits.
 
 A `dest` that already holds files is an error, unless `replace: true` asks for them to be deleted first. Symbolic links aren't created; `skipped_links` counts them.
 

@@ -31,19 +31,20 @@ struct Ran {
 /// Run a bash script in Bashkit, a bash interpreter written in Rust: pipes,
 /// redirects, variables, functions and arrays, with grep, sed, awk, jq, find,
 /// sort, cut, tar and about 140 more built in. There are no other
-/// programs to run. The Volume's `/tmp` and `/data` are the real files, and
-/// the script starts in `/tmp`; anything written elsewhere is gone after the
-/// call, as are variables and functions. `curl` makes HTTPS requests to hosts
-/// the function's network setting allows, with a limited set of options.
+/// programs to run. `/volume/tmp` and `/volume/data` are the Volume's real
+/// files, and the script starts in `/volume/tmp`; anything written elsewhere
+/// is gone after the call, as are variables and functions. `curl` makes HTTPS
+/// requests to hosts the function's network setting allows, with a limited set
+/// of options.
 #[function]
 fn run_bash(input: BashInput) -> Result<Ran, ToolError> {
     let setup = Setup {
-        mounts: ["/tmp", "/data"]
+        mounts: ["/volume/tmp", "/volume/data"]
             .into_iter()
             .filter(|dir| std::fs::metadata(dir).is_ok())
             .map(|dir| (dir.to_string(), PathBuf::from(dir)))
             .collect(),
-        scratch: PathBuf::from("/tmp"),
+        scratch: PathBuf::from("/volume/tmp"),
         transport: Arc::new(http::request),
     };
     run(&input.script, setup)
@@ -125,10 +126,10 @@ mod tests {
 
     use super::*;
 
-    /// A fresh real directory, shown to the script as `/tmp`.
+    /// A fresh real directory, shown to the script as `/volume/tmp`.
     fn volume(name: &str) -> PathBuf {
-        // WASI has no `temp_dir`; the wasmtime runner maps target/ to /tmp.
-        let base = if cfg!(target_os = "wasi") { PathBuf::from("/tmp") } else { std::env::temp_dir() };
+        // WASI has no `temp_dir`; the wasmtime runner maps target/ to /volume/tmp.
+        let base = if cfg!(target_os = "wasi") { PathBuf::from("/volume/tmp") } else { std::env::temp_dir() };
         let dir = base.join(format!("bashkit-function-test-{name}"));
         let _ = std::fs::remove_dir_all(&dir);
         std::fs::create_dir_all(&dir).unwrap();
@@ -163,7 +164,7 @@ mod tests {
 
     fn bash(script: &str, dir: &Path, transport: curl::Transport) -> Ran {
         let setup = Setup {
-            mounts: vec![("/tmp".to_string(), dir.to_path_buf())],
+            mounts: vec![("/volume/tmp".to_string(), dir.to_path_buf())],
             scratch: dir.to_path_buf(),
             transport,
         };
@@ -201,7 +202,7 @@ mod tests {
     #[test]
     fn starts_in_tmp() {
         let dir = volume("cwd");
-        assert_eq!(offline("pwd", &dir).stdout, "/tmp\n");
+        assert_eq!(offline("pwd", &dir).stdout, "/volume/tmp\n");
     }
 
     #[test]
@@ -209,11 +210,11 @@ mod tests {
         let dir = volume("files");
         std::fs::write(dir.join("in.txt"), "from the volume\n").unwrap();
         let ran = offline(
-            "cat /tmp/in.txt\n\
+            "cat /volume/tmp/in.txt\n\
              echo one > out.txt; echo two >> out.txt\n\
              mkdir -p a/b && cp out.txt a/b/copy.txt\n\
              mv in.txt moved.txt\n\
-             find /tmp -name '*.txt' | sort",
+             find /volume/tmp -name '*.txt' | sort",
             &dir,
         );
         assert_eq!(

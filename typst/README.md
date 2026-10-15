@@ -8,8 +8,8 @@ A Subako function package that typesets [Typst](https://typst.app) markup or Mar
 
 | Input | |
 | --- | --- |
-| `source` | `{"type": "markdown", "text": "..."}`, `{"type": "typst", "text": "..."}`, or `{"type": "file", "path": "/data/report.md"}` for a `.md` or `.typ` file on the Volume |
-| `output` | Volume path for the PDF, such as `/tmp/report.pdf`. Missing directories are created |
+| `source` | `{"type": "markdown", "text": "..."}`, `{"type": "typst", "text": "..."}`, or `{"type": "file", "path": "/volume/data/report.md"}` for a `.md` or `.typ` file on the Volume |
+| `output` | Volume path for the PDF, such as `/volume/tmp/report.pdf`. Missing directories are created |
 | `template` | Optional. `"subako"` (the default) or `"plain"` for Typst's defaults |
 | `title` | Optional. The document title: large at the top and in the header of the Subako template, and the PDF's title |
 | `preamble` | Optional. Typst code run after the template and before the source, such as `#set page(paper: "us-letter")` |
@@ -17,7 +17,7 @@ A Subako function package that typesets [Typst](https://typst.app) markup or Mar
 ```json
 {
   "source": { "type": "markdown", "text": "# Q3\n\nCalls grew **225%**.\n\n| Quarter | Calls |\n| --- | ---: |\n| Q2 | 3,918 |" },
-  "output": "/tmp/q3.pdf",
+  "output": "/volume/tmp/q3.pdf",
   "title": "Quarterly report"
 }
 ```
@@ -25,7 +25,7 @@ A Subako function package that typesets [Typst](https://typst.app) markup or Mar
 returns
 
 ```json
-{ "path": "/tmp/q3.pdf", "pages": 1, "bytes": 19492 }
+{ "path": "/volume/tmp/q3.pdf", "pages": 1, "bytes": 19492 }
 ```
 
 with `warnings` when Typst has any. A source that doesn't compile fails the call with Typst's errors as `file:line:column: error: message` (`<input>` for source passed as text), and nothing is written.
@@ -47,13 +47,13 @@ Typst code can use it directly as well:
 
 ## Markdown
 
-Markdown is typeset with [cmarker](https://typst.app/universe/package/cmarker), which the package bundles: CommonMark with GitHub tables, strikethrough and task lists. Images in it resolve from the Markdown file's directory, or from `/tmp` for text. Math is left as text.
+Markdown is typeset with [cmarker](https://typst.app/universe/package/cmarker), which the package bundles: CommonMark with GitHub tables, strikethrough and task lists. Images in it resolve from the Markdown file's directory, or from `/volume/tmp` for text. Math is left as text.
 
 ## Files, fonts and packages
 
-- **Paths:** the project root is the Volume's filesystem, so `/data/chart.png` means that file; relative paths resolve from the source file's directory, or from `/tmp` for text.
+- **Paths:** the project root is the Volume's filesystem, so `/volume/data/chart.png` means that file; relative paths resolve from the source file's directory, or from `/volume/tmp` for text.
 - **Fonts:** the template's, plus Typst's own (Libertinus Serif, New Computer Modern, DejaVu Sans Mono).
-- **Packages:** `@preview` packages are downloaded from packages.typst.org through the Subako worker, when the function's network setting allows that host, and kept in `/tmp/.typst-packages` for later calls.
+- **Packages:** `@preview` packages are downloaded from packages.typst.org through the Subako worker, when the function's network setting allows that host, and kept in `/volume/tmp/.typst-packages` for later calls.
 
 ## How it works
 
@@ -77,9 +77,9 @@ subako function create dist/typst-function.tar.gz
 Locally, `tests/subako_http_stub.wat` stands in for the worker's `subako_http` import and fails every request:
 
 ```sh
-printf '%s\n' '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"_meta":{"io.modelcontextprotocol/protocolVersion":"2026-07-28","io.modelcontextprotocol/clientCapabilities":{}},"name":"render_pdf","arguments":{"source":{"type":"markdown","text":"# Hello"},"output":"/tmp/hello.pdf"}}}' |
+printf '%s\n' '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"_meta":{"io.modelcontextprotocol/protocolVersion":"2026-07-28","io.modelcontextprotocol/clientCapabilities":{}},"name":"render_pdf","arguments":{"source":{"type":"markdown","text":"# Hello"},"output":"/volume/tmp/hello.pdf"}}}' |
     wasmtime run --preload subako_http=tests/subako_http_stub.wat --argv0 typst \
-    --dir assets::/package --dir /path/to/scratch::/tmp \
+    --dir assets::/package --dir /path/to/scratch::/volume/tmp \
     target/wasm32-wasip1/release/typst-function.wasm
 ```
 

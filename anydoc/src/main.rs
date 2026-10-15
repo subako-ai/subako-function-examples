@@ -8,7 +8,7 @@ use subako_function_sdk::{ToolError, function, package};
 #[derive(Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 struct ConvertInput {
-    /// Path of the document on the session's Volume, under `/tmp` or `/data`.
+    /// Path of the document on the session's Volume, under `/volume/tmp` or `/volume/data`.
     path: String,
     /// The format as a file extension, such as `csv` or `docx`. Only needed
     /// for CSV, which has no signature, or a file whose content and extension
@@ -275,14 +275,14 @@ mod tests {
 
     #[test]
     fn output_defaults_to_inline() {
-        let input: ConvertInput = serde_json::from_str(r#"{"path": "/tmp/a.docx"}"#).unwrap();
+        let input: ConvertInput = serde_json::from_str(r#"{"path": "/volume/tmp/a.docx"}"#).unwrap();
         assert_eq!(input.output, MarkdownOutput::Inline);
         let input: ConvertInput = serde_json::from_str(
-            r#"{"path": "/tmp/a.docx", "output": {"type": "file", "path": "/tmp/a.md"}}"#,
+            r#"{"path": "/volume/tmp/a.docx", "output": {"type": "file", "path": "/volume/tmp/a.md"}}"#,
         )
         .unwrap();
-        assert_eq!(input.output, MarkdownOutput::File { path: "/tmp/a.md".to_string() });
-        let unknown = r#"{"path": "/tmp/a.docx", "output_path": "/tmp/a.md"}"#;
+        assert_eq!(input.output, MarkdownOutput::File { path: "/volume/tmp/a.md".to_string() });
+        let unknown = r#"{"path": "/volume/tmp/a.docx", "output_path": "/volume/tmp/a.md"}"#;
         assert!(serde_json::from_str::<ConvertInput>(unknown).is_err());
     }
 

@@ -122,7 +122,7 @@ def svg_to_png(svg, path, *, scale=1.0):
 def _temp_path():
     import secrets
 
-    return f"/tmp/.subako-http-{secrets.token_hex(8)}"
+    return f"/volume/tmp/.subako-http-{secrets.token_hex(8)}"
 
 
 def _remove(path):

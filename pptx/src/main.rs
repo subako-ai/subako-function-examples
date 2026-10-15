@@ -21,7 +21,7 @@ const LOGO_PAPER: &[u8] = include_bytes!("../brand/logo-paper.png");
 struct CreateInput {
     /// The JavaScript that builds the deck.
     source: Source,
-    /// Volume path to write the `.pptx` to, such as `/tmp/deck.pptx`.
+    /// Volume path to write the `.pptx` to, such as `/volume/tmp/deck.pptx`.
     output: String,
 }
 
@@ -55,9 +55,9 @@ struct Created {
 /// write that instead. Subako slide masters are defined: `SUBAKO_TITLE`,
 /// `SUBAKO_SECTION` and `SUBAKO_CONTENT` (placeholders `title`, `subtitle` and
 /// `body`), with `subako.colors` and `subako.fonts` to match. For images use
-/// `addImage({ data: image("/tmp/chart.png") })`: `image()` reads a PNG, JPEG
+/// `addImage({ data: image("/volume/tmp/chart.png") })`: `image()` reads a PNG, JPEG
 /// or GIF on the Volume or fetches an https URL; SVG isn't supported.
-/// `readText(path)` reads a text file. Relative paths resolve from `/tmp`.
+/// `readText(path)` reads a text file. Relative paths resolve from `/volume/tmp`.
 #[function]
 fn create_pptx(input: CreateInput) -> Result<Created, ToolError> {
     let fetch: Fetch = Arc::new(|url: &str, dest: &Path| {
@@ -66,7 +66,7 @@ fn create_pptx(input: CreateInput) -> Result<Created, ToolError> {
         let response = http::request(&request).map_err(|e| e.message)?;
         Ok((response.status, response.headers.get("content-type").cloned()))
     });
-    let host = Host { scratch: PathBuf::from("/tmp"), fetch, time_limit: Duration::from_secs(60) };
+    let host = Host { scratch: PathBuf::from("/volume/tmp"), fetch, time_limit: Duration::from_secs(60) };
     create(input, host)
 }
 
@@ -314,8 +314,8 @@ mod tests {
 
     /// A fresh scratch directory and a worker that must not be called.
     fn host(name: &str) -> Host {
-        // WASI has no `temp_dir`; the wasmtime runner maps target/ to /tmp.
-        let base = if cfg!(target_os = "wasi") { PathBuf::from("/tmp") } else { std::env::temp_dir() };
+        // WASI has no `temp_dir`; the wasmtime runner maps target/ to /volume/tmp.
+        let base = if cfg!(target_os = "wasi") { PathBuf::from("/volume/tmp") } else { std::env::temp_dir() };
         let scratch = base.join(format!("pptx-function-test-{name}"));
         let _ = std::fs::remove_dir_all(&scratch);
         std::fs::create_dir_all(&scratch).unwrap();

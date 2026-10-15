@@ -22,7 +22,7 @@ pub type Transport = Arc<dyn Fn(&Request) -> Result<Response, HttpError> + Send 
 
 pub struct Client {
     transport: Transport,
-    /// The Volume's `/tmp`, where large responses and downloads go by default.
+    /// `/volume/tmp`, where large responses and downloads go by default.
     pub tmp: PathBuf,
     /// A real directory for response bodies in flight, which the worker
     /// writes as files.
@@ -130,7 +130,7 @@ impl Client {
 
     /// The worker's client.
     pub fn worker() -> Self {
-        Client::new(Arc::new(http::request), PathBuf::from("/tmp"))
+        Client::new(Arc::new(http::request), PathBuf::from("/volume/tmp"))
     }
 
     /// GETs `path` (such as `/repos/rust-lang/rust`) from the API, or a full

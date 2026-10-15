@@ -21,7 +21,7 @@ struct RunInput {
 enum Source {
     /// Python source given as a string, run like `python -c`.
     Code { code: String },
-    /// A script on the Volume, under `/tmp` or `/data`, run like
+    /// A script on the Volume, under `/volume/tmp` or `/volume/data`, run like
     /// `python <path>`: its directory is first on `sys.path`, so it can
     /// import modules next to it.
     File { path: String },
@@ -55,7 +55,7 @@ enum Outcome {
 
 /// Run Python 3.15 (CPython, compiled to WebAssembly) and return what it
 /// printed. Takes source code as a string or a script file on the Volume,
-/// which is at `/tmp` and `/data`. The standard library is available except
+/// which is at `/volume/tmp` and `/volume/data`. The standard library is available except
 /// what needs native libraries or the host: compression (zlib, gzip, bz2,
 /// lzma), sqlite3, ssl, ctypes, subprocess, threads, sockets and the asyncio
 /// event loop. HTTPS works through `urllib.request`, or `subako.request(url,
@@ -149,6 +149,8 @@ mod python {
                 // The third-party packages fetch-cpython.sh bundles.
                 std::env::set_var("PYTHONPATH", "/package/site-packages");
                 std::env::set_var("PYTHONDONTWRITEBYTECODE", "1");
+                // The guest has no /tmp of its own, so `tempfile` uses the Volume's.
+                std::env::set_var("TMPDIR", "/volume/tmp");
                 Py_InitializeEx(0);
             }
             let module = PyImport_AddModule(c"_subako".as_ptr());
@@ -459,7 +461,7 @@ _subako.http_request = fake
                  print(r.status, r.headers['Content-Type'], r.read())\n\
              print(SENT[0]['method'], SENT[0]['url'], SENT[0]['headers']['User-agent'][:6])\n\
              import os\n\
-             print([f for f in os.listdir('/tmp') if f.startswith('.subako-http')])"
+             print([f for f in os.listdir('/volume/tmp') if f.startswith('.subako-http')])"
         ));
         assert_eq!(
             out,
@@ -503,15 +505,15 @@ _subako.http_request = fake
     fn draws_a_pygal_chart_as_svg_and_png() {
         let out = stdout(
             "import os, pygal\n\
-             os.makedirs('/tmp/chart-test', exist_ok=True)\n\
+             os.makedirs('/volume/tmp/chart-test', exist_ok=True)\n\
              chart = pygal.Bar(title='売上 by quarter')\n\
              chart.x_labels = ['Q1', 'Q2', 'Q3', 'Q4']\n\
              chart.add('2025', [3, 5, 4, 8])\n\
-             chart.render_to_file('/tmp/chart-test/sales.svg')\n\
-             chart.render_to_png('/tmp/chart-test/sales.png')\n\
+             chart.render_to_file('/volume/tmp/chart-test/sales.svg')\n\
+             chart.render_to_png('/volume/tmp/chart-test/sales.png')\n\
              import subako\n\
-             print(subako.svg_to_png(chart.render(), '/tmp/chart-test/big.png', scale=2))\n\
-             print(open('/tmp/chart-test/sales.png', 'rb').read(4))\n\
+             print(subako.svg_to_png(chart.render(), '/volume/tmp/chart-test/big.png', scale=2))\n\
+             print(open('/volume/tmp/chart-test/sales.png', 'rb').read(4))\n\
              import cairosvg\n\
              print(cairosvg.svg2png(bytestring=chart.render(), output_width=400)[:4])",
         );
@@ -522,7 +524,7 @@ _subako.http_request = fake
     fn bad_svg_is_a_value_error() {
         let out = stdout(
             "import subako\n\
-             try:\n    subako.svg_to_png('<svg', '/tmp/bad.png')\n\
+             try:\n    subako.svg_to_png('<svg', '/volume/tmp/bad.png')\n\
              except ValueError as e:\n    print(str(e)[:11])",
         );
         assert_eq!(out, "invalid SVG\n");

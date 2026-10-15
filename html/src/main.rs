@@ -30,7 +30,7 @@ const MAX_OVERFLOWING: usize = 10;
 struct RenderInput {
     /// The page to draw.
     source: Source,
-    /// Volume path to write the PNG to, such as `/tmp/page.png`.
+    /// Volume path to write the PNG to, such as `/volume/tmp/page.png`.
     output: String,
     /// The viewport's width in CSS pixels, as a browser window's. Defaults to
     /// 1280; 390 is a phone.
@@ -68,7 +68,7 @@ fn default_full_page() -> bool {
 #[derive(Deserialize, JsonSchema)]
 #[serde(tag = "type", rename_all = "snake_case", deny_unknown_fields)]
 enum Source {
-    /// HTML given as a string. Relative URLs in it resolve from `/tmp`.
+    /// HTML given as a string. Relative URLs in it resolve from `/volume/tmp`.
     Html { html: String },
     /// An HTML file on the Volume. Relative URLs in it resolve from its
     /// directory, so stylesheets and images next to it load.
@@ -124,7 +124,7 @@ struct Size {
 fn render_html(input: RenderInput) -> Result<Rendered, ToolError> {
     let fetch: net::Fetch = Arc::new(|url: &str| {
         static NEXT: AtomicU32 = AtomicU32::new(0);
-        let path = format!("/tmp/.subako-html-{}", NEXT.fetch_add(1, Ordering::Relaxed));
+        let path = format!("/volume/tmp/.subako-html-{}", NEXT.fetch_add(1, Ordering::Relaxed));
         let mut request = http::Request::get(url);
         request.output = http::ResponseOutput::File { path: path.clone() };
         let response = http::request(&request).map_err(|e| format!("{:?}: {}", e.kind, e.message));
@@ -154,7 +154,7 @@ fn render(input: RenderInput, fonts_dir: &Path, fetch: net::Fetch) -> Result<Ren
     }
     let output = absolute(&input.output);
     let (html, base) = match &input.source {
-        Source::Html { html } => (html.clone(), PathBuf::from("/tmp/index.html")),
+        Source::Html { html } => (html.clone(), PathBuf::from("/volume/tmp/index.html")),
         Source::File { path } => {
             let path = absolute(path);
             if path == output {
@@ -330,9 +330,9 @@ fn write_png(path: &Path, rgba: &[u8], width: u32, height: u32, scale: f32) -> R
     writer.finish().map_err(fail)
 }
 
-/// `path`, from `/tmp` if relative.
+/// `path`, from `/volume/tmp` if relative.
 fn absolute(path: &str) -> PathBuf {
-    Path::new("/tmp").join(path)
+    Path::new("/volume/tmp").join(path)
 }
 
 #[cfg(test)]
@@ -355,8 +355,8 @@ mod tests {
     }
 
     fn out(name: &str) -> String {
-        // WASI has no `temp_dir`; the runner maps target/ to /tmp.
-        let path = dir("target/test-output", "/tmp/test-output").join(name);
+        // WASI has no `temp_dir`; the runner maps target/ to /volume/tmp.
+        let path = dir("target/test-output", "/volume/tmp/test-output").join(name);
         let _ = std::fs::remove_file(&path);
         path.display().to_string()
     }

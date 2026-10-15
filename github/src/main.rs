@@ -25,7 +25,7 @@ struct ApiInput {
     #[serde(default)]
     accept: Option<String>,
     /// Optional Volume path to save the body to instead of returning it,
-    /// such as `/tmp/issues.json`.
+    /// such as `/volume/tmp/issues.json`.
     #[serde(default)]
     output: Option<String>,
 }
@@ -37,7 +37,7 @@ struct ApiReply {
     /// it was saved to a file instead.
     #[serde(skip_serializing_if = "Option::is_none")]
     body: Option<serde_json::Value>,
-    /// Where the body was saved: `output`, or a file under `/tmp/github` when
+    /// Where the body was saved: `output`, or a file under `/volume/tmp/github` when
     /// it was too large to return.
     #[serde(skip_serializing_if = "Option::is_none")]
     saved_to: Option<String>,
@@ -121,7 +121,7 @@ struct DownloadInput {
     #[serde(default, rename = "ref")]
     git_ref: Option<String>,
     /// Optional Volume directory to put the files in. Defaults to
-    /// `/tmp/github/OWNER/REPO`.
+    /// `/volume/tmp/github/OWNER/REPO`.
     #[serde(default)]
     dest: Option<String>,
     /// Delete what `dest` already holds first. Without it, a `dest` that
@@ -173,7 +173,7 @@ fn read_file(input: ReadFileInput) -> Result<ReadFileReply, ToolError> {
 
 /// Download a whole GitHub repository's files to the Volume, at any branch,
 /// tag or commit, to search or analyse them with other tools, such as grep
-/// in bash or Python. Without `dest` they go to `/tmp/github/OWNER/REPO`.
+/// in bash or Python. Without `dest` they go to `/volume/tmp/github/OWNER/REPO`.
 /// There is no git history; use `github_api` for commits.
 #[function]
 fn download_repo(input: DownloadInput) -> Result<Downloaded, ToolError> {
@@ -460,7 +460,7 @@ fn volume_path(path: &str) -> Result<PathBuf, ToolError> {
         Ok(path.to_path_buf())
     } else {
         Err(ToolError::new(format!(
-            "{} isn't an absolute Volume path, such as /tmp/out.json",
+            "{} isn't an absolute Volume path, such as /volume/tmp/out.json",
             path.display()
         )))
     }
@@ -487,11 +487,11 @@ mod tests {
 
     type Answer = Result<(u16, Vec<(&'static str, String)>, Vec<u8>), HttpError>;
 
-    /// A fresh real directory standing in for the Volume's `/tmp`.
+    /// A fresh real directory standing in for `/volume/tmp`.
     fn volume(name: &str) -> PathBuf {
-        // WASI has no `temp_dir`; the wasmtime runner maps target/ to /tmp.
+        // WASI has no `temp_dir`; the wasmtime runner maps target/ to /volume/tmp.
         let base = if cfg!(target_os = "wasi") {
-            PathBuf::from("/tmp")
+            PathBuf::from("/volume/tmp")
         } else {
             std::env::temp_dir()
         };

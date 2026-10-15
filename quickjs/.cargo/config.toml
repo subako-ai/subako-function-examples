@@ -5,7 +5,7 @@ CC_wasm32_wasip1 = { value = "wasi-sdk/bin/wasm32-wasip1-clang", relative = true
 AR_wasm32_wasip1 = { value = "wasi-sdk/bin/llvm-ar", relative = true }
 
 # `cargo test --target wasm32-wasip1` runs the tests in wasmtime, with
-# target/ as the guest's /tmp, the test scripts at /tests, and a stub for the
+# target/ as the guest's /volume/tmp, the test scripts at /tests, and a stub for the
 # worker's HTTP import.
 [target.wasm32-wasip1]
-runner = "wasmtime run --preload subako_http=tests/subako_http_stub.wat --dir target::/tmp --dir tests::/tests"
+runner = "wasmtime run --preload subako_http=tests/subako_http_stub.wat --dir target::/volume/tmp --dir tests::/tests"

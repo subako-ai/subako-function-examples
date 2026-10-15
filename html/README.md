@@ -8,8 +8,8 @@ A Subako function package that draws HTML pages to PNG, so an agent can look at 
 
 | Input | |
 | --- | --- |
-| `source` | `{"type": "file", "path": "/data/site/index.html"}` for an HTML file on the Volume, whose relative URLs resolve from its directory, or `{"type": "html", "html": "..."}`, whose relative URLs resolve from `/tmp` |
-| `output` | Volume path for the PNG, such as `/tmp/page.png`. Missing directories are created |
+| `source` | `{"type": "file", "path": "/volume/data/site/index.html"}` for an HTML file on the Volume, whose relative URLs resolve from its directory, or `{"type": "html", "html": "..."}`, whose relative URLs resolve from `/volume/tmp` |
+| `output` | Volume path for the PNG, such as `/volume/tmp/page.png`. Missing directories are created |
 | `width` | Optional. The viewport's width in CSS pixels; 1280 by default, 390 for a phone |
 | `height` | Optional. The viewport's height, for `vh` units and `full_page: false`; 800 by default |
 | `scale` | Optional. Device pixels per CSS pixel, 0.1 to 4; 2 draws a sharper image twice the size |
@@ -18,8 +18,8 @@ A Subako function package that draws HTML pages to PNG, so an agent can look at 
 
 ```json
 {
-  "source": { "type": "file", "path": "/data/report/index.html" },
-  "output": "/data/report/phone.png",
+  "source": { "type": "file", "path": "/volume/data/report/index.html" },
+  "output": "/volume/data/report/phone.png",
   "width": 390
 }
 ```
@@ -28,7 +28,7 @@ returns
 
 ```json
 {
-  "output": "/data/report/phone.png",
+  "output": "/volume/data/report/phone.png",
   "image": { "width": 390, "height": 3242 },
   "page": { "width": 449, "height": 3242 },
   "overflowing": ["section.panel.full (right edge at 449px)", "section.panel.full (right edge at 449px)"],
@@ -100,9 +100,9 @@ subako function create dist/html-function.tar.gz
 To try the module directly:
 
 ```sh
-printf '%s\n' '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"_meta":{"io.modelcontextprotocol/protocolVersion":"2026-07-28","io.modelcontextprotocol/clientCapabilities":{}},"name":"render_html","arguments":{"source":{"type":"html","html":"<h1 style=\"color:teal\">Hello</h1>"},"output":"/tmp/hello.png","width":400,"height":200}}}' |
+printf '%s\n' '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"_meta":{"io.modelcontextprotocol/protocolVersion":"2026-07-28","io.modelcontextprotocol/clientCapabilities":{}},"name":"render_html","arguments":{"source":{"type":"html","html":"<h1 style=\"color:teal\">Hello</h1>"},"output":"/volume/tmp/hello.png","width":400,"height":200}}}' |
     wasmtime run --preload subako_http=tests/subako_http_stub.wat --argv0 html \
-    --dir assets::/package --dir target::/tmp target/wasm32-wasip1/release/html-function.wasm
+    --dir assets::/package --dir target::/volume/tmp target/wasm32-wasip1/release/html-function.wasm
 ```
 
 The fonts are under the SIL Open Font License 1.1. Blitz is under the MIT or Apache 2.0 license.

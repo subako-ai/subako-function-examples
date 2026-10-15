@@ -8,20 +8,20 @@ A Subako function package that builds PowerPoint decks from JavaScript. The agen
 
 | Input | |
 | --- | --- |
-| `source` | `{"type": "code", "code": "..."}`, or `{"type": "file", "path": "/data/deck.js"}` for a script on the Volume |
-| `output` | Volume path for the deck, such as `/tmp/deck.pptx`. Missing directories are created |
+| `source` | `{"type": "code", "code": "..."}`, or `{"type": "file", "path": "/volume/data/deck.js"}` for a script on the Volume |
+| `output` | Volume path for the deck, such as `/volume/tmp/deck.pptx`. Missing directories are created |
 
 ```json
 {
   "source": { "type": "code", "code": "const s = pptx.addSlide({ masterName: 'SUBAKO_TITLE' });\ns.addText('Quarterly report', { placeholder: 'title' });\ns.addText('Q3 2026', { placeholder: 'subtitle' });" },
-  "output": "/tmp/q3.pptx"
+  "output": "/volume/tmp/q3.pptx"
 }
 ```
 
 returns
 
 ```json
-{ "path": "/tmp/q3.pptx", "slides": 1, "bytes": 147264 }
+{ "path": "/volume/tmp/q3.pptx", "slides": 1, "bytes": 147264 }
 ```
 
 with `logs` when the script used `console`. A script that throws fails the call with the error, its line in the script, and the logs so far; nothing is written.
@@ -35,7 +35,7 @@ The script is the body of an async function, so it can `await`. It gets:
 - `readText(path)`: a text file on the Volume, such as CSV or JSON to chart.
 - `console.log`, `warn` and `error`, which end up in `logs`.
 
-Relative paths resolve from `/tmp`, or from the script's directory for a script file.
+Relative paths resolve from `/volume/tmp`, or from the script's directory for a script file.
 
 ## Subako masters
 
@@ -77,9 +77,9 @@ subako function create dist/pptx-function.tar.gz
 Locally, `tests/subako_http_stub.wat` stands in for the worker's `subako_http` import and fails every request:
 
 ```sh
-printf '%s\n' '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"_meta":{"io.modelcontextprotocol/protocolVersion":"2026-07-28","io.modelcontextprotocol/clientCapabilities":{}},"name":"create_pptx","arguments":{"source":{"type":"code","code":"pptx.addSlide().addText(\"Hi\", { x: 1, y: 1, w: 4, h: 1 });"},"output":"/tmp/hi.pptx"}}}' |
+printf '%s\n' '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"_meta":{"io.modelcontextprotocol/protocolVersion":"2026-07-28","io.modelcontextprotocol/clientCapabilities":{}},"name":"create_pptx","arguments":{"source":{"type":"code","code":"pptx.addSlide().addText(\"Hi\", { x: 1, y: 1, w: 4, h: 1 });"},"output":"/volume/tmp/hi.pptx"}}}' |
     wasmtime run --preload subako_http=tests/subako_http_stub.wat --argv0 pptx \
-    --dir /path/to/scratch::/tmp target/wasm32-wasip1/release/pptx-function.wasm
+    --dir /path/to/scratch::/volume/tmp target/wasm32-wasip1/release/pptx-function.wasm
 ```
 
 ## Licenses

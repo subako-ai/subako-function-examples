@@ -8,7 +8,7 @@ A Subako function package that runs JavaScript in [QuickJS](https://github.com/q
 
 | Input | |
 | --- | --- |
-| `source` | `{"type": "code", "code": "..."}`, or `{"type": "file", "path": "/data/report.js"}` for a script on the Volume |
+| `source` | `{"type": "code", "code": "..."}`, or `{"type": "file", "path": "/volume/data/report.js"}` for a script on the Volume |
 | `args` | Optional. Strings for the script, as the global `args` |
 
 ```json
@@ -34,7 +34,7 @@ The script is the body of an async function, so it can `await` and `return`. Bey
 - `fs`: `readText`, `readBytes` (a `Uint8Array`), `writeText`, `writeBytes`, `appendText`, `list`, `exists` and `remove` for files on the Volume. Writing creates missing directories.
 - `await import("./lib.js")` for other script files, which may themselves `import` by relative path. There are no packages, no `require`, and no static `import` in the script itself, since it is a function body.
 
-Relative paths, in `fs` and in `import()`, resolve from `/tmp`, or from the script's directory for a script file.
+Relative paths, in `fs` and in `import()`, resolve from `/volume/tmp`, or from the script's directory for a script file.
 
 ## Limits
 
@@ -61,7 +61,7 @@ Locally, `tests/subako_http_stub.wat` stands in for the worker's `subako_http` i
 ```sh
 printf '%s\n' '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"_meta":{"io.modelcontextprotocol/protocolVersion":"2026-07-28","io.modelcontextprotocol/clientCapabilities":{}},"name":"run_javascript","arguments":{"source":{"type":"code","code":"return [1, 2, 3].map((n) => n * 2);"}}}}' |
     wasmtime run --preload subako_http=tests/subako_http_stub.wat --argv0 javascript \
-    --dir /path/to/scratch::/tmp target/wasm32-wasip1/release/quickjs-function.wasm
+    --dir /path/to/scratch::/volume/tmp target/wasm32-wasip1/release/quickjs-function.wasm
 ```
 
 QuickJS-ng and rquickjs are under the MIT license.

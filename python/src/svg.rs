@@ -69,8 +69,8 @@ mod tests {
     }
 
     fn scratch(name: &str) -> std::path::PathBuf {
-        // The wasm runner maps target/ to /tmp.
-        let dir = if cfg!(target_os = "wasi") { "/tmp" } else { "target" };
+        // The wasm runner maps target/ to /volume/tmp.
+        let dir = if cfg!(target_os = "wasi") { "/volume/tmp" } else { "target" };
         Path::new(dir).join(format!("svg-test-{name}"))
     }
 

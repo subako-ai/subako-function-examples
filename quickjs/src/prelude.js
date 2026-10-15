@@ -110,7 +110,7 @@
   global.Headers = Headers;
   global.Response = Response;
 
-  /** Files on the Volume. Relative paths resolve from `/tmp`, or from the
+  /** Files on the Volume. Relative paths resolve from `/volume/tmp`, or from the
    * script's directory for a script file. */
   global.fs = {
     readText: function (path) { return __subakoDecode(__subakoRead(String(path))); },

@@ -7,7 +7,7 @@ A Subako function package that runs bash scripts with [Bashkit](https://github.c
 ### `run_bash`
 
 ```json
-{ "script": "tail -n +2 /data/stock.csv | cut -d, -f1 | sort | uniq -c > counts.txt && cat counts.txt" }
+{ "script": "tail -n +2 /volume/data/stock.csv | cut -d, -f1 | sort | uniq -c > counts.txt && cat counts.txt" }
 ```
 
 returns
@@ -22,7 +22,7 @@ A nonzero exit code is still a successful call. `stdout_truncated` and `stderr_t
 
 - **Bash:** pipes, redirects, variables, functions, arrays, loops, globs, command substitution and here-docs, from Bashkit's interpreter.
 - **Commands:** `grep`, `sed`, `awk`, `jq`, `yq`, `find`, `sort`, `uniq`, `cut`, `tr`, `wc`, `head`, `tail`, `diff`, `tar`, `gzip`, `zip`, `base64`, `sha256sum`, `bc` and the rest of Bashkit's built-in commands. They are reimplementations, so their behavior can differ from GNU's at the edges. There are no other programs to run.
-- **Files:** `/tmp` and `/data` are the Volume's real directories, and scripts start in `/tmp`. Anything written elsewhere lives in memory and is gone after the call, as are variables and functions.
+- **Files:** `/volume/tmp` and `/volume/data` are the Volume's real directories, and scripts start in `/volume/tmp`. Anything written elsewhere lives in memory and is gone after the call, as are variables and functions.
 - **Network:** `curl`, below. Bashkit's own `wget` and `http`, which need sockets, report "command not found", as do its interactive commands (`less`, `watch`, `clear`, `history`, `fc`).
 
 ## curl
@@ -49,7 +49,7 @@ It takes one URL and these options:
 
 Any other option fails with exit code 2 and the list above. Failures use curl's exit codes: 7 when the worker refuses or can't reach the host (including hosts the network setting doesn't allow), 28 for a timeout, 47 for too many redirects, 22 for `-f`.
 
-Bodies pass through a temporary file in `/tmp`, so binary responses and uploads work and count against the call's Volume write budget.
+Bodies pass through a temporary file in `/volume/tmp`, so binary responses and uploads work and count against the call's Volume write budget.
 
 ## Limits
 
@@ -77,7 +77,7 @@ The wasm tests and local runs need [wasmtime](https://wasmtime.dev). It has no `
 ```sh
 printf '%s\n' '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"_meta":{"io.modelcontextprotocol/protocolVersion":"2026-07-28","io.modelcontextprotocol/clientCapabilities":{}},"name":"run_bash","arguments":{"script":"echo hello | tr a-z A-Z"}}}' |
     wasmtime run --preload subako_http=tests/subako_http_stub.wat --argv0 bash \
-    --dir /path/to/scratch::/tmp target/wasm32-wasip1/release/bashkit-function.wasm
+    --dir /path/to/scratch::/volume/tmp target/wasm32-wasip1/release/bashkit-function.wasm
 ```
 
 Bashkit is under the [MIT license](https://github.com/everruns/bashkit/blob/main/LICENSE).

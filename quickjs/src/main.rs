@@ -28,7 +28,7 @@ struct RunInput {
 enum Source {
     /// JavaScript given as a string.
     Code { code: String },
-    /// A script on the Volume, under `/tmp` or `/data`. Relative paths it
+    /// A script on the Volume, under `/volume/tmp` or `/volume/data`. Relative paths it
     /// uses resolve from its directory.
     File { path: String },
 }
@@ -74,7 +74,7 @@ enum Outcome {
 #[function]
 fn run_javascript(input: RunInput) -> Result<Ran, ToolError> {
     let host = Host {
-        scratch: PathBuf::from("/tmp"),
+        scratch: PathBuf::from("/volume/tmp"),
         fetch: Arc::new(http::request),
         time_limit: Duration::from_secs(60),
     };
@@ -486,8 +486,8 @@ mod tests {
 
     /// A fresh scratch directory and a worker that must not be called.
     fn host(name: &str) -> Host {
-        // WASI has no `temp_dir`; the wasmtime runner maps target/ to /tmp.
-        let base = if cfg!(target_os = "wasi") { PathBuf::from("/tmp") } else { std::env::temp_dir() };
+        // WASI has no `temp_dir`; the wasmtime runner maps target/ to /volume/tmp.
+        let base = if cfg!(target_os = "wasi") { PathBuf::from("/volume/tmp") } else { std::env::temp_dir() };
         let scratch = base.join(format!("quickjs-function-test-{name}"));
         let _ = std::fs::remove_dir_all(&scratch);
         std::fs::create_dir_all(&scratch).unwrap();

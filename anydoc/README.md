@@ -10,12 +10,12 @@ It reads Word (`.doc`, `.docx`), PowerPoint (`.ppt`, `.pptx`), Excel (`.xls`, `.
 
 | Input | |
 | --- | --- |
-| `path` | The document on the Volume, under `/tmp` or `/data` |
+| `path` | The document on the Volume, under `/volume/tmp` or `/volume/data` |
 | `format` | Optional. The format as an extension (`csv`, `docx`, ...). Only CSV, which has no signature, needs it when the file lacks a `.csv` extension; everything else is detected from the content |
-| `output` | Optional. `{"type": "inline"}` (the default) returns the Markdown in the reply; `{"type": "file", "path": "/data/report.md"}` writes it to the Volume instead, for long documents. Missing directories are created; the input file is never overwritten |
+| `output` | Optional. `{"type": "inline"}` (the default) returns the Markdown in the reply; `{"type": "file", "path": "/volume/data/report.md"}` writes it to the Volume instead, for long documents. Missing directories are created; the input file is never overwritten |
 
 ```json
-{ "path": "/data/report.docx" }
+{ "path": "/volume/data/report.docx" }
 ```
 
 returns
@@ -24,10 +24,10 @@ returns
 { "format": "docx", "markdown": { "type": "inline", "text": "# Report\n\n..." } }
 ```
 
-and with `"output": {"type": "file", "path": "/data/report.md"}`
+and with `"output": {"type": "file", "path": "/volume/data/report.md"}`
 
 ```json
-{ "format": "docx", "markdown": { "type": "file", "path": "/data/report.md", "bytes": 1234 } }
+{ "format": "docx", "markdown": { "type": "file", "path": "/volume/data/report.md", "bytes": 1234 } }
 ```
 
 ## PDFs that need OCR
@@ -59,11 +59,11 @@ cargo test
 subako function create dist/anydoc-function.tar.gz
 ```
 
-To try the module locally with [wasmtime](https://wasmtime.dev), mount a directory as `/tmp`:
+To try the module locally with [wasmtime](https://wasmtime.dev), mount a directory as `/volume/tmp`:
 
 ```sh
-printf '%s\n' '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"_meta":{"io.modelcontextprotocol/protocolVersion":"2026-07-28","io.modelcontextprotocol/clientCapabilities":{}},"name":"convert_to_markdown","arguments":{"path":"/tmp/text.pdf"}}}' |
-    wasmtime run --argv0 anydoc --dir tests/fixtures::/tmp \
+printf '%s\n' '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"_meta":{"io.modelcontextprotocol/protocolVersion":"2026-07-28","io.modelcontextprotocol/clientCapabilities":{}},"name":"convert_to_markdown","arguments":{"path":"/volume/tmp/text.pdf"}}}' |
+    wasmtime run --argv0 anydoc --dir tests/fixtures::/volume/tmp \
     target/wasm32-wasip1/release/anydoc-function.wasm
 ```
 

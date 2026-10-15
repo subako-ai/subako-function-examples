@@ -22,7 +22,7 @@ const CMARKER: &str = "@preview/cmarker:0.1.10";
 struct RenderInput {
     /// What to typeset.
     source: Source,
-    /// Volume path to write the PDF to, such as `/tmp/report.pdf`.
+    /// Volume path to write the PDF to, such as `/volume/tmp/report.pdf`.
     output: String,
     /// The look of the document. Defaults to `subako`.
     #[serde(default)]
@@ -75,7 +75,7 @@ struct Rendered {
 /// By default the PDF uses the Subako template (the Subako logo, the site's
 /// fonts and colors); `template: "plain"` gives Typst's defaults. Paths in the
 /// source resolve against the Volume: relative ones from the source file's
-/// directory, or from `/tmp` for text, so images and data files on the Volume
+/// directory, or from `/volume/tmp` for text, so images and data files on the Volume
 /// can be used. `@preview` packages are downloaded from packages.typst.org when
 /// the function's network setting allows it. Errors come back as
 /// `file:line:column: message`.
@@ -86,7 +86,7 @@ fn render_pdf(input: RenderInput) -> Result<Rendered, ToolError> {
         request.output = http::ResponseOutput::File { path: dest.display().to_string() };
         http::request(&request).map(|r| r.status).map_err(|e| e.message)
     });
-    let setup = Setup { assets: PathBuf::from("/package"), cache: PathBuf::from("/tmp/.typst-packages"), fetch };
+    let setup = Setup { assets: PathBuf::from("/package"), cache: PathBuf::from("/volume/tmp/.typst-packages"), fetch };
     render(input, setup)
 }
 
@@ -115,7 +115,7 @@ fn render(input: RenderInput, setup: Setup) -> Result<Rendered, ToolError> {
             .map_err(|e| ToolError::new(format!("bad path {}: {e:?}", path.display())))?;
         Ok(RootedPath::new(VirtualRoot::Project, vpath))
     };
-    let tmp = PathBuf::from("/tmp");
+    let tmp = PathBuf::from("/volume/tmp");
     let mut memory = HashMap::new();
     let markdown = |text: &str| {
         // `image` is passed in so image paths resolve from the main file.
@@ -259,8 +259,8 @@ mod tests {
     /// The repository's assets, a fresh cache, and a worker that must not be
     /// called.
     fn setup(name: &str) -> (Setup, PathBuf) {
-        // WASI has no `temp_dir`; the wasmtime runner maps target/ to /tmp.
-        let base = if cfg!(target_os = "wasi") { PathBuf::from("/tmp") } else { std::env::temp_dir() };
+        // WASI has no `temp_dir`; the wasmtime runner maps target/ to /volume/tmp.
+        let base = if cfg!(target_os = "wasi") { PathBuf::from("/volume/tmp") } else { std::env::temp_dir() };
         let dir = base.join(format!("typst-function-test-{name}"));
         let _ = std::fs::remove_dir_all(&dir);
         std::fs::create_dir_all(&dir).unwrap();

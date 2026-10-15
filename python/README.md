@@ -8,7 +8,7 @@ A Subako function package that runs Python: real CPython 3.15, compiled to WebAs
 
 | Input | |
 | --- | --- |
-| `source` | `{"type": "code", "code": "..."}` runs the string, like `python -c`. `{"type": "file", "path": "/data/script.py"}` runs a script on the Volume, like `python script.py`, with its directory first on `sys.path` so it can import modules next to it |
+| `source` | `{"type": "code", "code": "..."}` runs the string, like `python -c`. `{"type": "file", "path": "/volume/data/script.py"}` runs a script on the Volume, like `python script.py`, with its directory first on `sys.path` so it can import modules next to it |
 | `args` | Optional. Command-line arguments, as `sys.argv[1:]` |
 
 ```json
@@ -16,7 +16,7 @@ A Subako function package that runs Python: real CPython 3.15, compiled to WebAs
 ```
 
 ```json
-{ "source": { "type": "file", "path": "/data/report.py" }, "args": ["--month", "2026-09"] }
+{ "source": { "type": "file", "path": "/volume/data/report.py" }, "args": ["--month", "2026-09"] }
 ```
 
 The result has what the script printed to `stdout` and `stderr`, and an `outcome`:
@@ -50,8 +50,8 @@ chart = pygal.Bar(title="Revenue by quarter")
 chart.x_labels = ["Q1", "Q2", "Q3", "Q4"]
 chart.add("2025", [3.1, 4.8, 4.2, 6.9])
 chart.add("2026", [4.0, 5.5, 6.1, 8.3])
-chart.render_to_file("/data/revenue.svg")
-chart.render_to_png("/data/revenue.png")
+chart.render_to_file("/volume/data/revenue.svg")
+chart.render_to_png("/volume/data/revenue.png")
 ```
 
 pygal makes PNGs with CairoSVG, which needs native Cairo, so a small stand-in under that name draws them with [resvg](https://github.com/linebender/resvg) instead, built into the function. Only `cairosvg.svg2png` is there. The `subako` module has the same drawing for any SVG:
@@ -59,7 +59,7 @@ pygal makes PNGs with CairoSVG, which needs native Cairo, so a small stand-in un
 ```python
 import subako
 
-width, height = subako.svg_to_png(svg_text, "/data/chart.png", scale=2)
+width, height = subako.svg_to_png(svg_text, "/volume/data/chart.png", scale=2)
 ```
 
 Text uses the fonts bundled in `assets/fonts`: Inter for sans-serif, serif and every family that isn't bundled (so pygal's default Consolas becomes IBM Plex Mono, as `monospace`), IBM Plex Mono for monospace, and Noto Sans JP for Japanese. Interactive features of pygal's SVG, such as tooltips, need its JavaScript from kozea.github.io when viewed in a browser.
@@ -77,7 +77,7 @@ with urllib.request.urlopen("https://api.github.com/repos/python/cpython") as r:
     print(json.load(r)["stargazers_count"])
 ```
 
-Every urllib response body passes through a temporary file on the Volume's `/tmp`, so binary and large bodies work. Error statuses raise `urllib.error.HTTPError` as usual; a request the worker refuses raises `urllib.error.URLError` whose reason names why, such as `host_not_allowed: ...`. `http.client` and anything else that opens sockets itself still fails.
+Every urllib response body passes through a temporary file in `/volume/tmp`, so binary and large bodies work. Error statuses raise `urllib.error.HTTPError` as usual; a request the worker refuses raises `urllib.error.URLError` whose reason names why, such as `host_not_allowed: ...`. `http.client` and anything else that opens sockets itself still fails.
 
 The `subako` module makes the same requests directly:
 
@@ -88,7 +88,7 @@ r = subako.request("https://api.example.com/items", method="POST", json={"name":
 print(r.status, r.headers["content-type"], r.json())
 
 # Bodies that aren't UTF-8 text, or are over 256 KiB, have to go to a file.
-r = subako.request("https://example.com/report.pdf", save_to="/data/report.pdf")
+r = subako.request("https://example.com/report.pdf", save_to="/volume/data/report.pdf")
 print(r.path, r.bytes)
 ```
 
