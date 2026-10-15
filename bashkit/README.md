@@ -75,9 +75,9 @@ subako function create dist/bashkit-function.tar.gz
 The wasm tests and local runs need [wasmtime](https://wasmtime.dev). It has no `subako_http` import, so `tests/subako_http_stub.wat` stands in for it and fails every request:
 
 ```sh
-printf '%s' '{"script":"echo hello | tr a-z A-Z"}' |
+printf '%s\n' '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"_meta":{"io.modelcontextprotocol/protocolVersion":"2026-07-28","io.modelcontextprotocol/clientCapabilities":{}},"name":"run_bash","arguments":{"script":"echo hello | tr a-z A-Z"}}}' |
     wasmtime run --preload subako_http=tests/subako_http_stub.wat --argv0 bash \
-    --dir /path/to/scratch::/tmp target/wasm32-wasip1/release/bashkit-function.wasm run_bash
+    --dir /path/to/scratch::/tmp target/wasm32-wasip1/release/bashkit-function.wasm
 ```
 
 Bashkit is under the [MIT license](https://github.com/everruns/bashkit/blob/main/LICENSE).

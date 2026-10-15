@@ -9,7 +9,7 @@ anydoc = "0.2"
 pdf-inspector = "1"
 schemars = "1"
 serde = { version = "1", features = ["derive"] }
-subako-function-sdk = "0.2"
+subako-function-sdk = "0.2.1"
 
 [profile.release]
 opt-level = "s"

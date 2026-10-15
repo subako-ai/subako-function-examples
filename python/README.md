@@ -121,9 +121,9 @@ The tests run in WebAssembly because only the wasm build embeds Python; the buil
 To try the module directly:
 
 ```sh
-printf '%s' '{"source":{"type":"code","code":"print(2 ** 100)"}}' |
+printf '%s\n' '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"_meta":{"io.modelcontextprotocol/protocolVersion":"2026-07-28","io.modelcontextprotocol/clientCapabilities":{}},"name":"run_python","arguments":{"source":{"type":"code","code":"print(2 ** 100)"}}}}' |
     wasmtime run --preload subako_http=tests/subako_http_stub.wat --argv0 python \
-    --dir assets::/package target/wasm32-wasip1/release/python-function.wasm run_python
+    --dir assets::/package target/wasm32-wasip1/release/python-function.wasm
 ```
 
 CPython is under the [PSF License](https://docs.python.org/3/license.html), which `fetch-cpython.sh` puts in the bundle as `assets/LICENSE-CPython`. pygal is under the LGPL 3.0 and its license is in its `dist-info`; the fonts are under the SIL Open Font License 1.1.

@@ -59,9 +59,9 @@ subako function create dist/quickjs-function.tar.gz
 Locally, `tests/subako_http_stub.wat` stands in for the worker's `subako_http` import and fails every request:
 
 ```sh
-printf '%s' '{"source":{"type":"code","code":"return [1, 2, 3].map((n) => n * 2);"}}' |
+printf '%s\n' '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"_meta":{"io.modelcontextprotocol/protocolVersion":"2026-07-28","io.modelcontextprotocol/clientCapabilities":{}},"name":"run_javascript","arguments":{"source":{"type":"code","code":"return [1, 2, 3].map((n) => n * 2);"}}}}' |
     wasmtime run --preload subako_http=tests/subako_http_stub.wat --argv0 javascript \
-    --dir /path/to/scratch::/tmp target/wasm32-wasip1/release/quickjs-function.wasm run_javascript
+    --dir /path/to/scratch::/tmp target/wasm32-wasip1/release/quickjs-function.wasm
 ```
 
 QuickJS-ng and rquickjs are under the MIT license.

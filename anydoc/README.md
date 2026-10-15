@@ -62,8 +62,9 @@ subako function create dist/anydoc-function.tar.gz
 To try the module locally with [wasmtime](https://wasmtime.dev), mount a directory as `/tmp`:
 
 ```sh
-echo '{"path":"/tmp/text.pdf"}' | wasmtime run --argv0 anydoc --dir tests/fixtures::/tmp \
-    target/wasm32-wasip1/release/anydoc-function.wasm convert_to_markdown
+printf '%s\n' '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"_meta":{"io.modelcontextprotocol/protocolVersion":"2026-07-28","io.modelcontextprotocol/clientCapabilities":{}},"name":"convert_to_markdown","arguments":{"path":"/tmp/text.pdf"}}}' |
+    wasmtime run --argv0 anydoc --dir tests/fixtures::/tmp \
+    target/wasm32-wasip1/release/anydoc-function.wasm
 ```
 
 The files in `tests/fixtures/` come from anydoc's own test corpus, under its [MIT license](https://github.com/firecrawl/anydoc/blob/main/LICENSE).

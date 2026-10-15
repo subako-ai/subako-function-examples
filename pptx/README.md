@@ -77,9 +77,9 @@ subako function create dist/pptx-function.tar.gz
 Locally, `tests/subako_http_stub.wat` stands in for the worker's `subako_http` import and fails every request:
 
 ```sh
-printf '%s' '{"source":{"type":"code","code":"pptx.addSlide().addText(\"Hi\", { x: 1, y: 1, w: 4, h: 1 });"},"output":"/tmp/hi.pptx"}' |
+printf '%s\n' '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"_meta":{"io.modelcontextprotocol/protocolVersion":"2026-07-28","io.modelcontextprotocol/clientCapabilities":{}},"name":"create_pptx","arguments":{"source":{"type":"code","code":"pptx.addSlide().addText(\"Hi\", { x: 1, y: 1, w: 4, h: 1 });"},"output":"/tmp/hi.pptx"}}}' |
     wasmtime run --preload subako_http=tests/subako_http_stub.wat --argv0 pptx \
-    --dir /path/to/scratch::/tmp target/wasm32-wasip1/release/pptx-function.wasm create_pptx
+    --dir /path/to/scratch::/tmp target/wasm32-wasip1/release/pptx-function.wasm
 ```
 
 ## Licenses

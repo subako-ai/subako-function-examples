@@ -256,6 +256,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9f7c3e4beb33f85d45ae3e3a1792185706c8e16d043238c593331cc7cd313b50"
 
 [[package]]
+name = "percent-encoding"
+version = "2.3.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9b4f627cb1b25917193a259e49bdad08f671f8d9708acfd5fe0a8c1455d87220"
+
+[[package]]
 name = "pico-args"
 version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -521,10 +527,11 @@ dependencies = [
 
 [[package]]
 name = "subako-function-sdk"
-version = "0.2.0"
+version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3979c6f040262191a5684da34ba5f18f52c1dc2403eaa65860dbc7e7d8383da2"
+checksum = "fe882d512b4882502cfc2db992bbca225db97010d361da1e08d6c4cf1f938c78"
 dependencies = [
+ "percent-encoding",
  "schemars",
  "serde",
  "serde_json",
@@ -533,9 +540,9 @@ dependencies = [
 
 [[package]]
 name = "subako-function-sdk-macros"
-version = "0.2.0"
+version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fda491b070caba5fc6b7254fd6e085370eb64b33869f8fea23f4d72e7f26786e"
+checksum = "552ff73a188cc4c6a3b6cb2dac543e3d89b4c38d4c44c0abb8fdffc95976df61"
 dependencies = [
  "proc-macro2",
  "quote",

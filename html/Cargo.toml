@@ -21,7 +21,7 @@ serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 # Firefox's CSS engine, as Blitz uses it, for reading computed styles.
 style = { package = "stylo", version = "0.22.0", default-features = false }
-subako-function-sdk = "0.2"
+subako-function-sdk = "0.2.1"
 # The fonts for SVG text, in the version blitz-dom uses.
 usvg = { version = "0.48.1", default-features = false, features = ["text"] }
 

@@ -100,9 +100,9 @@ subako function create dist/html-function.tar.gz
 To try the module directly:
 
 ```sh
-printf '%s' '{"source":{"type":"html","html":"<h1 style=\"color:teal\">Hello</h1>"},"output":"/tmp/hello.png","width":400,"height":200}' |
+printf '%s\n' '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"_meta":{"io.modelcontextprotocol/protocolVersion":"2026-07-28","io.modelcontextprotocol/clientCapabilities":{}},"name":"render_html","arguments":{"source":{"type":"html","html":"<h1 style=\"color:teal\">Hello</h1>"},"output":"/tmp/hello.png","width":400,"height":200}}}' |
     wasmtime run --preload subako_http=tests/subako_http_stub.wat --argv0 html \
-    --dir assets::/package --dir target::/tmp target/wasm32-wasip1/release/html-function.wasm render_html
+    --dir assets::/package --dir target::/tmp target/wasm32-wasip1/release/html-function.wasm
 ```
 
 The fonts are under the SIL Open Font License 1.1. Blitz is under the MIT or Apache 2.0 license.

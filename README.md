@@ -24,6 +24,8 @@ subako function create dist/<name>.tar.gz
 
 `package.sh` needs the `wasm32-wasip1` target, which each example's `rust-toolchain.toml` installs through rustup.
 
+A module is an MCP server over stdio, as [subako-function-sdk](https://crates.io/crates/subako-function-sdk) describes. To try one under [wasmtime](https://wasmtime.dev), pipe it a `tools/call` request on one line, as each example's README shows; it answers with a JSON-RPC response on stdout.
+
 ## License
 
 Licensed under either of [Apache License, Version 2.0](LICENSE-APACHE) or [MIT license](LICENSE-MIT) at your option.
