@@ -219,7 +219,7 @@ mod tests {
         );
         assert_eq!(
             ran.stdout,
-            "from the volume\n/tmp/a/b/copy.txt\n/tmp/moved.txt\n/tmp/out.txt\n",
+            "from the volume\n/volume/tmp/a/b/copy.txt\n/volume/tmp/moved.txt\n/volume/tmp/out.txt\n",
             "{ran:?}"
         );
         assert_eq!(std::fs::read_to_string(dir.join("out.txt")).unwrap(), "one\ntwo\n");
