@@ -20,8 +20,8 @@ github.com/segmentio/encoding v0.5.4 h1:OW1VRern8Nw6ITAtwSZ7Idrl3MXCFwXHPgqESYfv
 github.com/segmentio/encoding v0.5.4/go.mod h1:HS1ZKa3kSN32ZHVZ7ZLPLXWvOVIiZtyJnO1gPH1sKt0=
 github.com/stretchr/testify v1.11.1 h1:7s2iGBzp5EwR7/aIZr8ao5+dra3wiQyKjjFuvgVKu7U=
 github.com/stretchr/testify v1.11.1/go.mod h1:wZwfW3scLgRK+23gO65QZefKpKQRnfz6sD981Nm4B6U=
-github.com/subako-ai/subako-function-sdk-go v0.0.0-20261015021001-e8832c3f774b h1:OnPBdb8V7g3BKe63TQbUA/qvWknMRQSO3vb2pcgYGEQ=
-github.com/subako-ai/subako-function-sdk-go v0.0.0-20261015021001-e8832c3f774b/go.mod h1:iT6+zGULfObXxZ5pSoYU4ihWBRprqtYhkFqOWm0CnHg=
+github.com/subako-ai/subako-function-sdk-go v0.1.0 h1:QDp79UENsRbh+qUAvkc+qARrjjuGRJbCqwSD9oW13bg=
+github.com/subako-ai/subako-function-sdk-go v0.1.0/go.mod h1:iT6+zGULfObXxZ5pSoYU4ihWBRprqtYhkFqOWm0CnHg=
 github.com/tiendc/go-deepcopy v1.7.2 h1:Ut2yYR7W9tWjTQitganoIue4UGxZwCcJy3orjrrIj44=
 github.com/tiendc/go-deepcopy v1.7.2/go.mod h1:4bKjNC2r7boYOkD2IOuZpYjmlDdzjbpTRyCx+goBCJQ=
 github.com/xuri/efp v0.0.1 h1:fws5Rv3myXyYni8uwj2qKjVaRP30PdjeYe2Y6FDsCL8=

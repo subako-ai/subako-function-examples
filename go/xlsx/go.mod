@@ -4,7 +4,7 @@ go 1.25.0
 
 require (
 	github.com/modelcontextprotocol/go-sdk v1.8.0
-	github.com/subako-ai/subako-function-sdk-go v0.0.0-20261015021001-e8832c3f774b
+	github.com/subako-ai/subako-function-sdk-go v0.1.0
 	github.com/xuri/excelize/v2 v2.11.0
 )
 
