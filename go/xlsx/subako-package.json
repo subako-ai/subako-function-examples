@@ -1,0 +1,5 @@
+{
+  "abi": 1,
+  "name": "xlsx",
+  "description": "Writes and reads Excel workbooks on the volume with excelize."
+}

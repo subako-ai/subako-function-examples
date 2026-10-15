@@ -30,6 +30,25 @@ subako function create dist/<name>.tar.gz
 
 A module is an MCP server over stdio, as [subako-function-sdk](https://crates.io/crates/subako-function-sdk#the-protocol) describes. To try one under [wasmtime](https://wasmtime.dev), pipe it a `tools/call` request on one line, as each example's README shows; it answers with a JSON-RPC response on stdout.
 
+## Go
+
+Written with [subako-function-sdk-go](https://github.com/subako-ai/subako-function-sdk-go) and the [official MCP Go SDK](https://github.com/modelcontextprotocol/go-sdk), each one a module of its own.
+
+| Example | What it does |
+| --- | --- |
+| [xlsx](go/xlsx/) | Writes and reads Excel workbooks on the Volume with [excelize](https://github.com/qax-os/excelize): formulas, a frozen header row, column widths and number formats, and cells read back with formulas calculated |
+
+### Build a Go example
+
+```sh
+cd go/xlsx
+go test ./...
+./package.sh                                   # dist/<name>.tar.gz
+subako function create dist/<name>.tar.gz
+```
+
+Go examples need Go 1.25 or later.
+
 ## License
 
 Licensed under either of [Apache License, Version 2.0](LICENSE-APACHE) or [MIT license](LICENSE-MIT) at your option.
