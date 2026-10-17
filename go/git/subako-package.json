@@ -1,0 +1,5 @@
+{
+  "abi": 1,
+  "name": "git",
+  "description": "Clones, commits and pushes git repositories on the volume with go-git, over HTTPS."
+}
