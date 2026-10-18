@@ -53,8 +53,11 @@ It returns the new `head`, and the `changes` the commit records.
 | Input | |
 | --- | --- |
 | `remote` | Optional. The remote's name; `origin` by default |
+| `force` | Optional. Replace the remote branch even where it has commits the clone lacks, as `git push --force-with-lease` does |
 
-It pushes the current branch to the branch of the same name on the remote, creating that branch when it is new. It never force-pushes. A remote that has moved on is an error that says to `git_pull` first. `up_to_date: true` means the remote already had the commit.
+It pushes the current branch to the branch of the same name on the remote, creating that branch when it is new. A remote that has moved on is an error that says to `git_pull` first. `up_to_date: true` means the remote already had the commit.
+
+`force` replaces only what the clone has seen. When the remote branch has moved since the clone last fetched it, the push is refused, so a commit someone pushed in the meantime is never lost unseen. `git_pull` fetches the remote's commits even when it then can't fast-forward to them. After that, a push with `force` replaces them.
 
 ### `git_pull`
 
@@ -62,7 +65,7 @@ It pushes the current branch to the branch of the same name on the remote, creat
 | --- | --- |
 | `remote` | Optional. The remote's name; `origin` by default |
 
-It fast-forwards the current branch to the remote's. The clone must have no uncommitted changes. When both sides have new commits, it can't merge them. Push the clone's commits to a new branch instead. `up_to_date: true` means the remote had nothing new.
+It fast-forwards the current branch to the remote's. The clone must have no uncommitted changes. When both sides have new commits, it can't merge them. Push the clone's commits to a new branch instead, or replace the remote's with `git_push`'s `force`. `up_to_date: true` means the remote had nothing new.
 
 ### `git_log`
 

@@ -244,6 +244,12 @@ type RemoteInput struct {
 	Remote string `json:"remote,omitempty" jsonschema:"the remote's name; origin when empty"`
 }
 
+type PushInput struct {
+	Dir    string `json:"dir" jsonschema:"the clone's directory on the volume"`
+	Remote string `json:"remote,omitempty" jsonschema:"the remote's name; origin when empty"`
+	Force  bool   `json:"force,omitempty" jsonschema:"replace the remote branch even where it has commits this clone lacks, as git push --force-with-lease does: only while the remote branch is still where this clone last saw it, so git_pull first to see commits pushed since"`
+}
+
 type Pushed struct {
 	Remote   string `json:"remote" jsonschema:"the remote's URL"`
 	Branch   string `json:"branch"`
@@ -251,7 +257,7 @@ type Pushed struct {
 	UpToDate bool   `json:"up_to_date,omitempty" jsonschema:"the remote already had the commit, so nothing was sent"`
 }
 
-func (t tools) push(ctx context.Context, _ *mcp.CallToolRequest, in RemoteInput) (*mcp.CallToolResult, Pushed, error) {
+func (t tools) push(ctx context.Context, _ *mcp.CallToolRequest, in PushInput) (*mcp.CallToolResult, Pushed, error) {
 	r, _, err := open(in.Dir)
 	if err != nil {
 		return nil, Pushed{}, err
@@ -268,20 +274,37 @@ func (t tools) push(ctx context.Context, _ *mcp.CallToolRequest, in RemoteInput)
 		return nil, Pushed{}, err
 	}
 	ref := plumbing.NewBranchReferenceName(head.Branch)
-	err = r.PushContext(ctx, &git.PushOptions{
+	opts := &git.PushOptions{
 		RemoteName:    remote,
 		RefSpecs:      []config.RefSpec{config.RefSpec(ref + ":" + ref)},
 		ClientOptions: t.clientOptions(),
-	})
+	}
+	// The lease is the remote-tracking branch, which a branch never fetched
+	// lacks; the remote cannot have commits this clone saw on it, so such a
+	// push stays an ordinary one.
+	leased := false
+	if in.Force {
+		_, err := r.Reference(plumbing.NewRemoteReferenceName(remote, head.Branch), true)
+		switch {
+		case err == nil:
+			opts.ForceWithLease = &git.ForceWithLease{}
+			leased = true
+		case !errors.Is(err, plumbing.ErrReferenceNotFound):
+			return nil, Pushed{}, err
+		}
+	}
+	err = r.PushContext(ctx, opts)
 	pushed := Pushed{Remote: url, Branch: head.Branch, Commit: head.Commit}
 	switch {
 	case err == nil:
 	case errors.Is(err, git.NoErrAlreadyUpToDate):
 		pushed.UpToDate = true
-	// go-git reports a push behind the remote with a bare fmt error, not
-	// ErrNonFastForwardUpdate, so only its text tells.
+	// go-git reports a push behind the remote, and a broken lease, with a
+	// bare fmt error, not ErrNonFastForwardUpdate, so only its text tells.
+	case strings.Contains(err.Error(), "non-fast-forward update") && leased:
+		return nil, Pushed{}, fmt.Errorf("%s on %s has moved since this clone last saw it, so force would overwrite commits no one here has seen; git_pull to see them, then push with force again if they should still go", head.Branch, url)
 	case strings.Contains(err.Error(), "non-fast-forward update"):
-		return nil, Pushed{}, fmt.Errorf("%s has commits on %s that this clone lacks; git_pull them first", url, head.Branch)
+		return nil, Pushed{}, fmt.Errorf("%s has commits on %s that this clone lacks; git_pull them first, or push with force to replace them", url, head.Branch)
 	default:
 		return nil, Pushed{}, fmt.Errorf("push to %s: %w", url, err)
 	}
@@ -318,7 +341,7 @@ func (t tools) pull(ctx context.Context, _ *mcp.CallToolRequest, in RemoteInput)
 	case errors.Is(err, git.NoErrAlreadyUpToDate):
 		return nil, Pulled{Head: head, UpToDate: true}, nil
 	case errors.Is(err, git.ErrNonFastForwardUpdate):
-		return nil, Pulled{}, fmt.Errorf("%s on %s and this clone have each moved on, and only a fast-forward pull is supported; push this clone's commits to a new branch instead", head.Branch, url)
+		return nil, Pulled{}, fmt.Errorf("%s on %s and this clone have each moved on, and only a fast-forward pull is supported; push this clone's commits to a new branch instead, or push with force to replace the remote's", head.Branch, url)
 	case errors.Is(err, git.ErrUnstagedChanges), errors.Is(err, git.ErrWorktreeNotClean):
 		return nil, Pulled{}, errors.New("the clone has uncommitted changes; commit them with git_commit before pulling")
 	case err != nil:

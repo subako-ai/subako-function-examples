@@ -212,7 +212,7 @@ func TestCloneEditCommitPush(t *testing.T) {
 		t.Errorf("committed %+v", committed)
 	}
 
-	_, pushed, err := tl.push(t.Context(), nil, RemoteInput{Dir: dir})
+	_, pushed, err := tl.push(t.Context(), nil, PushInput{Dir: dir})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -226,7 +226,7 @@ func TestCloneEditCommitPush(t *testing.T) {
 		t.Errorf("the remote's main holds %q", got)
 	}
 
-	_, again, err := tl.push(t.Context(), nil, RemoteInput{Dir: dir})
+	_, again, err := tl.push(t.Context(), nil, PushInput{Dir: dir})
 	if err != nil || !again.UpToDate {
 		t.Errorf("a second push answered %+v, %v", again, err)
 	}
@@ -255,7 +255,7 @@ func TestAShallowCloneCommitsAndPushes(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, _, err := tl.push(t.Context(), nil, RemoteInput{Dir: dir}); err != nil {
+	if _, _, err := tl.push(t.Context(), nil, PushInput{Dir: dir}); err != nil {
 		t.Fatal(err)
 	}
 	if got := run(t, bare, "rev-parse", "main"); got != committed.Head.Commit {
@@ -311,7 +311,7 @@ func TestAMissingExecutableBitIsNoChange(t *testing.T) {
 	if _, _, err := tl.commit(t.Context(), nil, CommitInput{Dir: dir, Message: "Deploy everything", AuthorName: "Agent", AuthorEmail: "agent@example.com"}); err != nil {
 		t.Fatal(err)
 	}
-	if _, _, err := tl.push(t.Context(), nil, RemoteInput{Dir: dir}); err != nil {
+	if _, _, err := tl.push(t.Context(), nil, PushInput{Dir: dir}); err != nil {
 		t.Fatal(err)
 	}
 	if got := run(t, bare, "ls-tree", "main", "deploy.sh"); !strings.HasPrefix(got, "100755 ") {
@@ -353,7 +353,7 @@ func TestANewBranchTakesTheChangesAndPushes(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, _, err := tl.push(t.Context(), nil, RemoteInput{Dir: dir}); err != nil {
+	if _, _, err := tl.push(t.Context(), nil, PushInput{Dir: dir}); err != nil {
 		t.Fatal(err)
 	}
 	if got := run(t, bare, "rev-parse", "greeting"); got != committed.Head.Commit {
@@ -416,7 +416,7 @@ func TestPullFastForwardsAndPushRefusesToOverwrite(t *testing.T) {
 	if _, _, err := tl.commit(t.Context(), nil, CommitInput{Dir: diverged, Message: "Add about", AuthorName: "Agent", AuthorEmail: "agent@example.com"}); err != nil {
 		t.Fatal(err)
 	}
-	if _, _, err := tl.push(t.Context(), nil, RemoteInput{Dir: diverged}); err == nil || !strings.Contains(err.Error(), "git_pull") {
+	if _, _, err := tl.push(t.Context(), nil, PushInput{Dir: diverged}); err == nil || !strings.Contains(err.Error(), "git_pull") {
 		t.Errorf("a push behind the remote answered %v", err)
 	}
 	if _, _, err := tl.pull(t.Context(), nil, RemoteInput{Dir: diverged}); err == nil || !strings.Contains(err.Error(), "fast-forward") {
@@ -424,6 +424,59 @@ func TestPullFastForwardsAndPushRefusesToOverwrite(t *testing.T) {
 	}
 	if got := run(t, bare, "log", "-1", "--format=%s", "main"); got != "Greet warmly" {
 		t.Errorf("the remote's main moved to %q", got)
+	}
+}
+
+func TestForceReplacesOnlyCommitsTheCloneHasSeen(t *testing.T) {
+	url, bare := remote(t)
+	tl := newTools(t)
+	dir := cloneSite(t, tl, url)
+
+	other := t.TempDir()
+	run(t, other, "clone", "-q", bare, ".")
+	write(t, filepath.Join(other, "index.html"), "<h1>Hello there</h1>\n")
+	run(t, other, "commit", "-q", "-am", "Greet warmly")
+	run(t, other, "push", "-q", "origin", "main")
+
+	write(t, filepath.Join(dir, "index.html"), "<h1>Hi</h1>\n")
+	_, committed, err := tl.commit(t.Context(), nil, CommitInput{Dir: dir, Message: "Greet briefly", AuthorName: "Agent", AuthorEmail: "agent@example.com"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, _, err := tl.push(t.Context(), nil, PushInput{Dir: dir, Force: true}); err == nil || !strings.Contains(err.Error(), "moved since this clone last saw it") {
+		t.Errorf("forcing over a commit the clone never saw answered %v", err)
+	}
+	if got := run(t, bare, "log", "-1", "--format=%s", "main"); got != "Greet warmly" {
+		t.Fatalf("the refused push moved the remote's main to %q", got)
+	}
+
+	if _, _, err := tl.pull(t.Context(), nil, RemoteInput{Dir: dir}); err == nil || !strings.Contains(err.Error(), "push with force") {
+		t.Errorf("a pull into diverged history answered %v", err)
+	}
+	_, pushed, err := tl.push(t.Context(), nil, PushInput{Dir: dir, Force: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if pushed.Commit != committed.Head.Commit {
+		t.Errorf("pushed %+v", pushed)
+	}
+	if got := run(t, bare, "log", "--format=%s", "main"); got != "Greet briefly\nFirst page" {
+		t.Errorf("the remote's main after the forced push: %q", got)
+	}
+}
+
+func TestForceOnANewBranchPushesIt(t *testing.T) {
+	url, bare := remote(t)
+	tl := newTools(t)
+	dir := cloneSite(t, tl, url)
+	if _, _, err := tl.checkout(t.Context(), nil, CheckoutInput{Dir: dir, Branch: "fresh", Create: true}); err != nil {
+		t.Fatal(err)
+	}
+	if _, _, err := tl.push(t.Context(), nil, PushInput{Dir: dir, Force: true}); err != nil {
+		t.Fatal(err)
+	}
+	if got := run(t, bare, "log", "-1", "--format=%s", "fresh"); got != "First page" {
+		t.Errorf("the remote's fresh is at %q", got)
 	}
 }
 

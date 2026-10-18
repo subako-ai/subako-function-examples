@@ -20,7 +20,7 @@ func main() {
 	mcp.AddTool(server, &mcp.Tool{Name: "git_status", Description: "Show a clone's branch and commit, its local branches, and the files that differ from the last commit."}, t.status)
 	mcp.AddTool(server, &mcp.Tool{Name: "git_diff", Description: "Show a unified diff of a clone's files on the volume against the last commit."}, t.diff)
 	mcp.AddTool(server, &mcp.Tool{Name: "git_commit", Description: "Commit a clone's changed files, every one by default, new and deleted ones included."}, t.commit)
-	mcp.AddTool(server, &mcp.Tool{Name: "git_push", Description: "Push the current branch to the same branch on the remote, creating it there if it is new."}, t.push)
+	mcp.AddTool(server, &mcp.Tool{Name: "git_push", Description: "Push the current branch to the same branch on the remote, creating it there if it is new. With force, replace the remote branch's commits, but only those this clone has seen."}, t.push)
 	mcp.AddTool(server, &mcp.Tool{Name: "git_pull", Description: "Fast-forward the current branch to the remote's. The clone must have no uncommitted changes."}, t.pull)
 	mcp.AddTool(server, &mcp.Tool{Name: "git_log", Description: "List a clone's commits, newest first, optionally only those that change one file."}, t.log)
 	mcp.AddTool(server, &mcp.Tool{Name: "git_checkout", Description: "Switch a clone to another branch, or create a branch at the current commit, keeping uncommitted changes."}, t.checkout)
