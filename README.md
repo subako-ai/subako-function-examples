@@ -37,6 +37,7 @@ Written with [subako-function-sdk-go](https://github.com/subako-ai/subako-functi
 | Example | What it does |
 | --- | --- |
 | [xlsx](go/xlsx/) | Writes and reads Excel workbooks on the Volume with [excelize](https://github.com/qax-os/excelize): formulas, a frozen header row, column widths and number formats, and cells read back with formulas calculated |
+| [git](go/git/) | Clones repositories onto the Volume over HTTPS with [go-git](https://github.com/go-git/go-git), and commits and pushes the changes other tools make there, with a token from a Subako vault |
 
 ### Build a Go example
 
@@ -47,7 +48,7 @@ go test ./...
 subako function create dist/<name>.tar.gz
 ```
 
-Go examples need Go 1.25 or later.
+Go examples need Go 1.25 or later; git needs Go 1.26.
 
 ## License
 
