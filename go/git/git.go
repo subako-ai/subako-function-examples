@@ -195,8 +195,8 @@ type CommitInput struct {
 	Dir         string   `json:"dir" jsonschema:"the clone's directory on the volume"`
 	Message     string   `json:"message" jsonschema:"the commit message"`
 	Paths       []string `json:"paths,omitempty" jsonschema:"files to commit, relative to dir; every changed file, new and deleted ones included, when empty"`
-	AuthorName  string   `json:"author_name,omitempty" jsonschema:"the author's name; the clone's user.name when empty"`
-	AuthorEmail string   `json:"author_email,omitempty" jsonschema:"the author's email; the clone's user.email when empty"`
+	AuthorName  string   `json:"author_name,omitempty" jsonschema:"the name of the person the commit is for, exactly as they gave it; never made up or guessed. When you do not know it, ask them before committing. The clone's user.name when empty"`
+	AuthorEmail string   `json:"author_email,omitempty" jsonschema:"that person's email, exactly as they gave it; never made up or guessed. When you do not know it, ask them before committing. The clone's user.email when empty"`
 }
 
 type Committed struct {
@@ -736,7 +736,7 @@ func authorOf(r *git.Repository, name, email string) (*object.Signature, error) 
 		}
 	}
 	if name == "" || email == "" {
-		return nil, errors.New("a commit needs an author: pass author_name and author_email")
+		return nil, errors.New("a commit needs an author: ask the user for the name and email to commit as, then pass them as author_name and author_email; do not make them up")
 	}
 	return &object.Signature{Name: name, Email: email, When: time.Now()}, nil
 }

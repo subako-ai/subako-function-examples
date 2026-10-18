@@ -46,6 +46,8 @@ It returns the `changes`, and the `diff` from the last commit to the files on th
 | `paths` | Optional. Files to commit, relative to `dir`. Every changed file by default, new and deleted files included |
 | `author_name`, `author_email` | Optional. The author. The clone's `user.name` and `user.email` otherwise. A function has no global git config, so a commit with neither fails |
 
+The author is the person the commit is for. The tool and its inputs tell the agent to pass the name and email that person gave it, to ask them when it does not know, and never to make up an author. A commit with no author fails with the same instruction.
+
 It returns the new `head`, and the `changes` the commit records.
 
 ### `git_push`
